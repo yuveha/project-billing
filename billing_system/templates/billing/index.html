@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+
+{% block title %}Billing Page{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .customer-section {
+        margin-bottom: 30px;
+    }
+    
+    .billing-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        padding: 20px;
+    }
+    
+    .bill-items {
+        border-right: 2px solid #333;
+        padding-right: 40px;
+    }
+    
+    .bill-items h3 {
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+    
+    .denominations {
+        padding-left: 40px;
+    }
+    
+    .denominations h3 {
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+    
+    .product-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .product-row input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    
+    .product-row button {
+        grid-column: span 2;
+        background-color: #f44336;
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .add-new-btn {
+        margin-top: 15px;
+        background-color: #666;
+        padding: 8px 20px;
+    }
+    
+    .add-new-btn:hover {
+        background-color: #555;
+    }
+    
+    .denom-row {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .denom-row label {
+        margin: 0;
+        text-align: right;
+        font-weight: normal;
+    }
+    
+    .denom-row input {
+        padding: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    
+    .cash-paid-section {
+        margin-top: 25px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+    }
+    
+    .cash-paid-section label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+    
+    .cash-paid-section input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    
+    .button-group {
+        margin-top: 30px;
+        text-align: right;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    
+    .balance-summary {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .balance-summary h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 16px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+    }
+    
+    .balance-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 20px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+    
+    .balance-row label {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .balance-row .value {
+        text-align: right;
+        font-weight: bold;
+        color: #0066cc;
+    }
+    
+    .balance-row.change .value {
+        color: #28a745;
+        font-size: 16px;
+    }
+    
+    @media (max-width: 768px) {
+        .billing-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .bill-items {
+            border-right: none;
+            border-bottom: 2px solid #333;
+            padding-right: 0;
+            padding-bottom: 30px;
+        }
+        
+        .denominations {
+            padding-left: 0;
+            padding-top: 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Billing Page</h1>
+
+<div class="customer-section">
+    <label for="customer_email">Customer Email</label>
+    <input type="email" id="customer_email" placeholder="Email ID" required>
+</div>
+
+<div class="billing-section">
+    <div class="bill-items">
+        <h3>Bill section</h3>
+        <div id="product-items">
+            <div class="product-row">
+                <input type="text" class="product-id" placeholder="Product ID">
+                <input type="number" class="quantity" placeholder="Quantity" min="1" value="1">
+            </div>
+        </div>
+        <button type="button" class="add-new-btn" onclick="addProductRow()">Add New</button>
+    </div>
+    
+    <div class="denominations">
+        <h3>Denominations</h3>
+        {% for denom in denominations %}
+        <div class="denom-row">
+            <label>{{ denom.value }}</label>
+            <input type="number" 
+                   id="denom_{{ denom.value }}" 
+                   class="denomination-count"
+                   data-value="{{ denom.value }}"
+                   placeholder="Count" 
+                   min="0" 
+                   value="0">
+        </div>
+        {% endfor %}
+        
+        <div class="cash-paid-section">
+            <label for="amount_paid">Cash paid by customer</label>
+             <input type="number" 
+                 id="amount_paid" 
+                 placeholder="Amount" 
+                 min="0" 
+                 step="0.01" 
+                 required>
+             <div style="margin-top:8px;font-size:14px;color:#333">Denomination total: ₹<span id="denom_total">0.00</span></div>
+        </div>
+    </div>
+</div>
+
+<div id="error-message" class="error" style="display: none;"></div>
+
+<div class="balance-summary" style="display: none;" id="balance-summary">
+    <h3>Bill Summary</h3>
+    <div class="balance-row">
+        <label>Bill Total (with tax):</label>
+        <div class="value">₹<span id="bill_total">0.00</span></div>
+    </div>
+    <div class="balance-row">
+        <label>Amount Paid:</label>
+        <div class="value">₹<span id="amount_paid_display">0.00</span></div>
+    </div>
+    <div class="balance-row change">
+        <label>Change / Balance:</label>
+        <div class="value">₹<span id="change_amount">0.00</span></div>
+    </div>
+</div>
+
+<div class="button-group">
+    <button type="button" class="secondary" onclick="resetForm()">Cancel</button>
+    <button type="button" onclick="generateBill()">Generate Bill</button>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addProductRow() {
+    const container = document.getElementById('product-items');
+    const row = document.createElement('div');
+    row.className = 'product-row';
+    row.innerHTML = `
+        <input type="text" class="product-id" placeholder="Product ID">
+        <input type="number" class="quantity" placeholder="Quantity" min="1" value="1">
+        <button type="button" onclick="removeProductRow(this)" class="danger">Remove</button>
+    `;
+    container.appendChild(row);
+    wireProductInputs();
+}
+
+function removeProductRow(button) {
+    button.parentElement.remove();
+}
+
+function resetForm() {
+    document.getElementById('customer_email').value = '';
+    document.getElementById('amount_paid').value = '';
+    document.querySelectorAll('.denomination-count').forEach(input => {
+        input.value = '0';
+    });
+    document.getElementById('denom_total').textContent = '0.00';
+    document.getElementById('balance-summary').style.display = 'none';
+    
+    const container = document.getElementById('product-items');
+    container.innerHTML = `
+        <div class="product-row">
+            <input type="text" class="product-id" placeholder="Product ID">
+            <input type="number" class="quantity" placeholder="Quantity" min="1" value="1">
+        </div>
+    `;
+    
+    hideError();
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideError() {
+    document.getElementById('error-message').style.display = 'none';
+}
+
+async function generateBill() {
+    hideError();
+    
+    const customerEmail = document.getElementById('customer_email').value.trim();
+    if (!customerEmail) {
+        showError('Please enter customer email');
+        return;
+    }
+    
+    const amountPaid = parseFloat(document.getElementById('amount_paid').value) || 0;
+    if (amountPaid <= 0) {
+        showError('Please enter amount paid by customer');
+        return;
+    }
+    
+    // Collect bill items
+    const billItems = [];
+    document.querySelectorAll('.product-row').forEach(row => {
+        const productId = row.querySelector('.product-id').value.trim();
+        const quantity = parseInt(row.querySelector('.quantity').value) || 0;
+        
+        if (productId && quantity > 0) {
+            billItems.push({ product_id: productId, quantity: quantity });
+        }
+    });
+    
+    if (billItems.length === 0) {
+        showError('Please add at least one product');
+        return;
+    }
+    
+    // Collect denominations
+    const denominationCounts = {};
+    document.querySelectorAll('.denomination-count').forEach(input => {
+        const value = input.dataset.value;
+        const count = parseInt(input.value) || 0;
+        denominationCounts[value] = count;
+    });
+    
+    // Prepare data
+    const data = {
+        customer_email: customerEmail,
+        bill_items: billItems,
+        denomination_counts: denominationCounts,
+        amount_paid: amountPaid
+    };
+    // Compute expected total by fetching product data (price + tax)
+    try {
+        let totalWithoutTax = 0;
+        let totalTax = 0;
+        for (const item of billItems) {
+            const res = await fetch('/api/product/' + encodeURIComponent(item.product_id) + '/');
+            if (!res.ok) {
+                showError('Product ' + item.product_id + ' not found');
+                return;
+            }
+            const j = await res.json();
+            if (!j.success) {
+                showError('Product ' + item.product_id + ' not found');
+                return;
+            }
+            const price = parseFloat(j.product.price);
+            const taxPerc = parseFloat(j.product.tax_percentage);
+            const itemTotalWithoutTax = price * item.quantity;
+            const taxAmount = (itemTotalWithoutTax * taxPerc) / 100;
+            totalWithoutTax += itemTotalWithoutTax;
+            totalTax += taxAmount;
+        }
+
+        const netPrice = totalWithoutTax + totalTax;
+        const roundedNetPrice = Math.ceil(netPrice);
+
+        if (amountPaid < roundedNetPrice) {
+            showError('Insufficient payment amount. Required: ₹' + roundedNetPrice.toFixed(2));
+            return;
+        }
+
+        const response = await fetch('/generate-bill/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = result.redirect_url;
+        } else {
+            showError(result.error || 'Failed to generate bill');
+        }
+    } catch (error) {
+        showError('An error occurred: ' + (error.message || error));
+    }
+}
+
+function updateDenominationTotal() {
+    let total = 0;
+    document.querySelectorAll('.denomination-count').forEach(input => {
+        const value = parseFloat(input.dataset.value) || 0;
+        const count = parseInt(input.value) || 0;
+        total += value * count;
+    });
+    // Round to 2 decimals
+    total = Math.round(total * 100) / 100;
+    document.getElementById('denom_total').textContent = total.toFixed(2);
+    // Auto-fill amount_paid with denomination total
+    const amountInput = document.getElementById('amount_paid');
+    if (amountInput) amountInput.value = total > 0 ? total.toFixed(2) : '';
+    updateBalanceSummary();
+}
+
+async function updateBalanceSummary() {
+    const billItems = [];
+    document.querySelectorAll('.product-row').forEach(row => {
+        const productId = row.querySelector('.product-id').value.trim();
+        const quantity = parseInt(row.querySelector('.quantity').value) || 0;
+        if (productId && quantity > 0) {
+            billItems.push({ product_id: productId, quantity: quantity });
+        }
+    });
+
+    if (billItems.length === 0) {
+        document.getElementById('balance-summary').style.display = 'none';
+        return;
+    }
+
+    let totalWithoutTax = 0;
+    let totalTax = 0;
+    
+    try {
+        for (const item of billItems) {
+            try {
+                const res = await fetch('/api/product/' + encodeURIComponent(item.product_id) + '/');
+                if (!res.ok) continue;
+                const j = await res.json();
+                if (!j.success) continue;
+                const price = parseFloat(j.product.price);
+                const taxPerc = parseFloat(j.product.tax_percentage);
+                const itemTotalWithoutTax = price * item.quantity;
+                const taxAmount = (itemTotalWithoutTax * taxPerc) / 100;
+                totalWithoutTax += itemTotalWithoutTax;
+                totalTax += taxAmount;
+            } catch (e) {
+                // skip on error
+            }
+        }
+
+        const netPrice = totalWithoutTax + totalTax;
+        const roundedNetPrice = Math.ceil(netPrice);
+        const amountPaid = parseFloat(document.getElementById('amount_paid').value) || 0;
+        const change = amountPaid - roundedNetPrice;
+        
+        document.getElementById('bill_total').textContent = roundedNetPrice.toFixed(2);
+        document.getElementById('amount_paid_display').textContent = amountPaid.toFixed(2);
+        document.getElementById('change_amount').textContent = change.toFixed(2);
+        document.getElementById('balance-summary').style.display = 'block';
+    } catch (e) {
+        document.getElementById('balance-summary').style.display = 'none';
+    }
+}
+
+function wireProductInputs() {
+    document.querySelectorAll('.product-id, .quantity').forEach(input => {
+        input.addEventListener('input', updateBalanceSummary);
+    });
+}
+
+function wireAmountPaidInput() {
+    const amountInput = document.getElementById('amount_paid');
+    if (amountInput) {
+        amountInput.addEventListener('change', updateBalanceSummary);
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Attach event listeners to denomination inputs
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.denomination-count').forEach(input => {
+        input.addEventListener('input', updateDenominationTotal);
+    });
+    wireProductInputs();
+    wireAmountPaidInput();
+    // initialize total on load
+    updateDenominationTotal();
+});
+</script>
+{% endblock %}

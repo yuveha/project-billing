@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block content %}
+<h1>User Details</h1>
+
+<div style="margin-bottom: 30px; padding: 20px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;">
+    <h2>{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}</h2>
+    <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
+    <p><strong>Email:</strong> {{ user_profile.user.email }}</p>
+    <p><strong>Phone:</strong> {{ user_profile.phone }}</p>
+    <p><strong>Address:</strong> {{ user_profile.address }}</p>
+    <p><strong>City:</strong> {{ user_profile.city }}</p>
+    <p><strong>State:</strong> {{ user_profile.state }}</p>
+    <p><strong>Postal Code:</strong> {{ user_profile.postal_code }}</p>
+    <p><strong>Member Since:</strong> {{ user_profile.created_at }}</p>
+</div>
+
+<h3>Purchase History</h3>
+{% if bills %}
+<ul>
+    {% for bill in bills %}
+    <li>
+        <a href="/bill/{{ bill.id }}/">Bill #{{ bill.id }}</a> — ₹{{ bill.rounded_net_price }} — {{ bill.created_at }}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No purchases found.</p>
+{% endif %}
+
+<a href="/users/">Back to Users</a>
+{% endblock %}

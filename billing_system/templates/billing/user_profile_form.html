@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile Form{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 4px;
+        color: #666;
+        font-size: 12px;
+    }
+    
+    .button-group {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .button-group button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+    
+    .button-group button:hover {
+        background-color: #0056b3;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border: 1px solid #f5c6cb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>User Profile Form</h1>
+
+<div class="form-container">
+    {% if success %}
+    <div class="success-message">
+        <strong>Success!</strong> {{ success }}
+        {% if user_id %}
+        <br><a href="/user/{{ user_id }}/">View Profile</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if error %}
+    <div class="error-message">
+        <strong>Error!</strong> {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text" id="username" name="username" required placeholder="Enter username">
+            <small>Unique identifier for the user</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required placeholder="Enter email address">
+        </div>
+        
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" placeholder="Enter first name">
+        </div>
+        
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" placeholder="Enter last name">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone" placeholder="Enter phone number">
+        </div>
+        
+        <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" placeholder="Enter street address"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" placeholder="Enter city">
+        </div>
+        
+        <div class="form-group">
+            <label for="state">State</label>
+            <input type="text" id="state" name="state" placeholder="Enter state">
+        </div>
+        
+        <div class="form-group">
+            <label for="postal_code">Postal Code</label>
+            <input type="text" id="postal_code" name="postal_code" placeholder="Enter postal code">
+        </div>
+        
+        <div class="button-group">
+            <button type="submit">Save Profile</button>
+            <a href="/users/"><button type="button">View All Users</button></a>
+        </div>
+    </form>
+</div>
+{% endblock %}

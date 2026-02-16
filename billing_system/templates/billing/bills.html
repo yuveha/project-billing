@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Bills{% endblock %}
+
+{% block content %}
+<h1>Bills</h1>
+<ul>
+    {% for bill in bills %}
+    <li>
+        <a href="/bill/{{ bill.id }}/">Bill #{{ bill.id }}</a> — {{ bill.customer_email }} — ₹{{ bill.rounded_net_price }} — {{ bill.created_at }}
+    </li>
+    {% empty %}
+    <li>No bills found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

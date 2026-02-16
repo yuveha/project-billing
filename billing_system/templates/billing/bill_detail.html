@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Bill #{{ bill.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .bill-header {
+        background-color: #f8f8f8;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .bill-section-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .bill-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+    
+    .bill-table thead tr {
+        background-color: #fff;
+        border-bottom: 2px solid #333;
+    }
+    
+    .bill-table th {
+        padding: 10px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 13px;
+    }
+    
+    .bill-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 13px;
+    }
+    
+    .summary-section {
+        margin: 30px 0;
+        padding: 20px;
+        background-color: #fafafa;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    
+    .summary-label {
+        text-align: right;
+        padding-right: 20px;
+        min-width: 350px;
+    }
+    
+    .summary-value {
+        font-weight: bold;
+        min-width: 100px;
+    }
+    
+    .balance-section {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f0f0f0;
+    }
+    
+    .balance-section h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+    
+    .balance-table {
+        width: auto;
+        margin: 0;
+    }
+    
+    .balance-table td {
+        padding: 5px 15px;
+        border: none;
+        text-align: right;
+        font-size: 14px;
+    }
+    
+    .balance-table td:first-child {
+        text-align: right;
+        padding-right: 10px;
+    }
+    
+    .print-button {
+        margin-top: 20px;
+    }
+    
+    @media print {
+        .nav, .print-button {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Billing Page</h1>
+
+<div class="bill-header">
+    <strong>Customer Email</strong> {{ bill.customer_email }}
+</div>
+
+<div class="bill-section-title">Bill section</div>
+
+<table class="bill-table">
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Unit Price</th>
+            <th>Quantity</th>
+            <th>Purchase Price</th>
+            <th>Tax % for item</th>
+            <th>tax payable for item</th>
+            <th>total price of the item</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in bill.items.all %}
+        <tr>
+            <td>{{ item.product.product_id }}</td>
+            <td>{{ item.unit_price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit_price }}</td>
+            <td>{{ item.tax_percentage }}%</td>
+            <td>{{ item.tax_amount }}</td>
+            <td>{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="summary-section">
+    <div class="summary-row">
+        <div class="summary-label">Total price without tax:</div>
+        <div class="summary-value">{{ bill.total_price_without_tax }}</div>
+    </div>
+    <div class="summary-row">
+        <div class="summary-label">Total tax payable:</div>
+        <div class="summary-value">{{ bill.total_tax }}</div>
+    </div>
+    <div class="summary-row">
+        <div class="summary-label">Net price of the purchased item:</div>
+        <div class="summary-value">{{ bill.net_price }}</div>
+    </div>
+    <div class="summary-row">
+        <div class="summary-label">Rounded down value of the purchased items net price:</div>
+        <div class="summary-value">{{ bill.rounded_net_price }}</div>
+    </div>
+    <div class="summary-row">
+        <div class="summary-label">Balance payable to the customer:</div>
+        <div class="summary-value">{{ bill.balance }}</div>
+    </div>
+</div>
+
+{% if bill.balance_denominations.all %}
+<div class="balance-section">
+    <h3>Balance Denomination:</h3>
+    <table class="balance-table">
+        <tbody>
+            {% for bd in bill.balance_denominations.all %}
+            <tr>
+                <td>{{ bd.value }}:</td>
+                <td>{{ bd.count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="print-button">
+    <button onclick="window.print()">Print Bill</button>
+    <button class="secondary" onclick="window.location.href='/'">New Bill</button>
+</div>
+
+<p style="margin-top: 20px; color: #666; font-size: 14px;">
+    <em>An invoice has been sent to {{ bill.customer_email }}</em>
+</p>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<h1>Products</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Product ID</th>
+            <th>Name</th>
+            <th>Available Stocks</th>
+            <th>Price</th>
+            <th>Tax %</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in products %}
+        <tr>
+            <td>{{ p.product_id }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.available_stocks }}</td>
+            <td>{{ p.price }}</td>
+            <td>{{ p.tax_percentage }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No products found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Purchases{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-form {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f8f8;
+        border-radius: 4px;
+    }
+    
+    .search-form .form-group {
+        margin-bottom: 0;
+    }
+    
+    .search-form input {
+        width: 70%;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    
+    .search-form button {
+        display: inline-block;
+    }
+    
+    .bill-card {
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #f8f8f8;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .bill-card:hover {
+        background-color: #e8e8e8;
+    }
+    
+    .bill-card h4 {
+        margin-bottom: 10px;
+        color: #4CAF50;
+    }
+    
+    .bill-details {
+        display: none;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #ddd;
+    }
+    
+    .bill-card.expanded .bill-details {
+        display: block;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Customer Purchases</h1>
+
+<div class="search-form">
+    <form method="GET" action="/customer-purchases/">
+        <div class="form-group">
+            <label for="email">Customer Email</label>
+            <input type="email" 
+                   id="email" 
+                   name="email" 
+                   placeholder="customer@example.com" 
+                   value="{{ customer_email }}"
+                   required>
+            <button type="submit">Search</button>
+        </div>
+    </form>
+</div>
+
+{% if customer_email %}
+    {% if bills %}
+        <h3>Purchase History for {{ customer_email }}</h3>
+        
+        {% for bill in bills %}
+        <div class="bill-card" onclick="toggleBillDetails({{ bill.id }})">
+            <h4>Bill #{{ bill.id }} - {{ bill.created_at|date:"Y-m-d H:i" }}</h4>
+            <p>
+                <strong>Total Amount:</strong> ₹{{ bill.rounded_net_price }} | 
+                <strong>Items:</strong> {{ bill.items.count }} | 
+                <strong>Balance:</strong> ₹{{ bill.balance }}
+            </p>
+            
+            <div class="bill-details" id="bill-{{ bill.id }}">
+                <h4>Items Purchased:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Product ID</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in bill.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.product.product_id }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ item.unit_price }}</td>
+                            <td>₹{{ item.total_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <p style="margin-top: 15px;">
+                    <a href="/bill/{{ bill.id }}/" style="color: #4CAF50; text-decoration: none;">
+                        View Full Bill →
+                    </a>
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-results">
+            <p>No purchases found for {{ customer_email }}</p>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="no-results">
+        <p>Enter a customer email to view their purchase history</p>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleBillDetails(billId) {
+    const card = event.currentTarget;
+    card.classList.toggle('expanded');
+}
+</script>
+{% endblock %}
